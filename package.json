@@ -1,0 +1,23 @@
+{
+  "name": "shy_panda",
+  "version": "1.0.0",
+  "description": "A project to help animals!",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oscar Rene Flores Presidente",
+  "license": "ISC",
+  "dependencies": {
+    "openzeppelin-solidity": "^2.3.0",
+    "truffle": "^5.0.26",
+    "truffle-hdwallet-provider": "^1.0.14"
+  },
+  "devDependencies": {
+    "bn.js": "^5.0.0",
+    "chai": "^4.2.0"
+  }
+}
