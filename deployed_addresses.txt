@@ -1,3 +1,6 @@
 ### Rinkeby Network
 Migrations => 0xF491cF8875ac79e60C208Bb0421a6bdb0788700B
 ShyPanda => 0xD128D4FBE8f6b71b22Ee6e10d08a0cDbD9CB8796
+
+You can access the front-end pointing to the Rinkeby deployment through:
+https://peaceful-lamarr-30ffe3.netlify.com/
