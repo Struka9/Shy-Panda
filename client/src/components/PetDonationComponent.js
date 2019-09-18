@@ -2,16 +2,13 @@ import React from 'react';
 import BigNumber from 'bignumber.js';
 import {
     Container,
-    CardColumns,
-    Card,
-    Button,
     Pagination,
     ProgressBar,
     InputGroup,
     FormControl,
-    Modal,
-    Form
+    Modal
 } from 'react-bootstrap';
+import {Box, Card, Heading, Text, Image, Button, Progress} from 'rimble-ui'
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 class PetDonationComponent extends React.Component {
@@ -36,24 +33,27 @@ class PetDonationComponent extends React.Component {
     }
 
     setup = async (web3, contract, owner, account) => {
-        const pageNumber = await contract.methods.getPageNumber.call();
-        contract.events.DonationLog({ from: 'latest' }, (err, event) => {
-            if (err) {
-                console.error(err);
-                return;
-            }
-            const { pets } = this.state;
-            const petId = event.returnValues['_petId'];
-            const amount = event.returnValues['_amount'];
-            const petIdx = pets.findIndex((e) => e['id'] === petId);
-
-            if (petIdx != -1) {
-                const sum = pets[petIdx]['donated'].plus(amount);
-                pets[petIdx]['donated'] = sum;
-                this.setState({ pets })
-            }
-        });
-        this.setState({ pageNumber }, this.loadPetsNextPage);
+        if(contract)
+        {
+            const pageNumber = await contract.methods.getPageNumber.call();
+            contract.events.DonationLog({ from: 'latest' }, (err, event) => {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                const { pets } = this.state;
+                const petId = event.returnValues['_petId'];
+                const amount = event.returnValues['_amount'];
+                const petIdx = pets.findIndex((e) => e['id'] === petId);
+                
+                if (petIdx != -1) {
+                    const sum = pets[petIdx]['donated'].plus(amount);
+                    pets[petIdx]['donated'] = sum;
+                    this.setState({ pets })
+                }
+            });
+            this.setState({ pageNumber }, this.loadPetsNextPage);
+        }
     }
 
     loadPetsNextPage = async () => {
@@ -90,21 +90,11 @@ class PetDonationComponent extends React.Component {
         const cards = pets.map((e) => this.buildCard(e));
 
         return (
-            <Container>
-                <br />
-                <InfiniteScroll
-                    dataLength={pageNumber * 10} //This is important field to render the next data
-                    next={this.loadPetsNextPage}
-                    hasMore={currentPage < pageNumber}
-                    loader={<h4>Loading...</h4>}
-                    endMessage={
-                        <p style={{ textAlign: 'center' }}>
-                            <b>Yay! You have seen it all</b>
-                        </p>
-                    }>
-                    <CardColumns>
+            <Box>
+                <div>
+                    <Box>
                         {cards}
-                    </CardColumns>
+                    </Box>
 
                     <Modal show={showDonateModal} onHide={this.handleModalClose}>
                         <Modal.Header closeButton>
@@ -135,8 +125,8 @@ class PetDonationComponent extends React.Component {
                             </Button>
                         </Modal.Footer>
                     </Modal>
-                </InfiniteScroll>
-            </Container>
+                </div>
+            </Box>
         )
     }
 
@@ -176,17 +166,16 @@ class PetDonationComponent extends React.Component {
         const res = Math.round(donated.dividedBy(needed).times(100).toNumber());
         const progress = Math.min(res, 100);
         return (
-            <Card key={id} style={{ width: '18rem' }}>
-                <Card.Header as="h5">{name}</Card.Header>
-                <Card.Img variant="top" src={`https://ipfs.io/ipfs/${photo}`} />
-                <Card.Body>
-                    <Card.Title>{`Goal: ${web3.utils.fromWei(needed.toString(), "ether")} ETH`}</Card.Title>
-                    <ProgressBar now={progress} variant="success" label={`${progress}%`} />
-                    <Card.Text>
-                        {bio}
-                    </Card.Text>
-                    <Button key={id} variant="primary" onClick={this.handleDonateClick.bind(this, id)}>Donate</Button>
-                </Card.Body>
+            <Card>
+                <Heading.h2>{name}</Heading.h2>
+                <Image width={1} src={`https://ipfs.io/ipfs/${photo}`} />
+                <Heading.h3>{`Goal: ${web3.utils.fromWei(needed.toString(), "ether")} ETH`}</Heading.h3>
+                <Text>{progress}%</Text>
+                <Progress value={progress} />
+                <Text>
+                    {bio}
+                </Text>
+                <Button width={1} onClick={this.handleDonateClick.bind(this, id)}>Donate</Button>
             </Card>
         );
     }
