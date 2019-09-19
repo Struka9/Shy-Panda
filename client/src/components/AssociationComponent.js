@@ -19,13 +19,16 @@ class AssociationComponent extends React.Component {
     }
 
     setup = (web3, contract) => {
-        contract.events.AssociationAddedLog({ fromBlock: 'latest' }, (err, event) => {
-            const { name } = event.returnValues;
-            this.setState({
-                alert: <AlertComponent variant="success" message={`Association ${name} has been added!`}
-                    onClose={() => this.setState({ alert: null })} />
-            })
-        });
+        if(contract)
+        {
+            contract.events.AssociationAddedLog({ fromBlock: 'latest' }, (err, event) => {
+                const { name } = event.returnValues;
+                this.setState({
+                    alert: <AlertComponent variant="success" message={`Association ${name} has been added!`}
+                        onClose={() => this.setState({ alert: null })} />
+                })
+            });
+        }
     }
 
     handleSubmit = async (event) => {

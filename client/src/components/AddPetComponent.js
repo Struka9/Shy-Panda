@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, Row, Container, Col, option, Spinner } from 'react-bootstrap';
+import { Card, Box, Heading, Form, Button, Field, Input, Textarea } from 'rimble-ui'
 import AlertComponent from './AlertComponent';
 import Keys from '../keys'
 
@@ -20,15 +20,34 @@ class AddPetComponent extends React.Component {
             loading: false
         };
         this.setup(web3, contract, owner);
+
+        this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     setup = (web3, contract) => {
-        contract.events.PetAddedLog({ fromBlock: 'latest' }, (err, event) => {
-            this.setState({
-                alert: <AlertComponent variant="success" message={`A new pet has been added!`}
-                    onClose={() => this.setState({ alert: null })} />
-            })
+        if(contract)
+        {
+            contract.events.PetAddedLog({ fromBlock: 'latest' }, (err, event) => {
+                this.setState({
+                    alert: <AlertComponent variant="success" message={`A new pet has been added!`}
+                        onClose={() => this.setState({ alert: null })} />
+                })
+            });
+        }
+    }
+
+    handleInputChange(event) {
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        const name = target.name;
+    
+        this.setState({
+            [name]: value
         });
+    }
+
+    handlePetNameChange(event) {
+        this.setState({ petName: this.state.web3.utils.utf8ToHex(event.target.value) });
     }
 
     handleFiles = (event) => {
@@ -65,16 +84,18 @@ class AddPetComponent extends React.Component {
     }
 
     handleSubmit = async (event) => {
+        console.log(23)
         this.setState({ loading: true });
         const form = event.currentTarget;
         event.preventDefault();
         if (form.checkValidity() === false) {
             event.stopPropagation();
         } else {
-            const { web3, contract, account, files } = this.state;
+            const { web3, contract, account, files, petName, petBio, petNeeded } = this.state;
             this.setState({ validated: true });
 
             const responses = [];
+            
             try {
                 const len = files.length;
                 for (let i = 0; i < len; i++) {
@@ -92,11 +113,7 @@ class AddPetComponent extends React.Component {
             }
 
             const photosHashes = responses.map((r) => r['data']['IpfsHash']);
-            const petName = form.elements.petName.value;
-            const petBio = form.elements.petBio.value;
-            const petNeeded = form.elements.petNeeded.value;
-
-
+            
             contract.methods.addPet(petName, photosHashes, petBio, petNeeded).send({ from: account })
                 .on("receipt", (receipt) => {
                     this.setState({ loading: false, validated: false });
@@ -118,60 +135,37 @@ class AddPetComponent extends React.Component {
     render() {
         const { alert, owner, account, loading: loading } = this.state;
 
-        const etherOptions = [];
-        for (let i = 1; i <= 100; i++) {
-            etherOptions.push(<option key={i}>{i}</option>);
-        }
-
         return (
-            <Container>
-                <Col>
-                    <br />
-                    <h1>New Pet</h1>
+            <Card>
+                <Box>
+                    <Heading.h2>New Pet</Heading.h2>
                     <label style={{ color: 'red' }}>Addresses that have not been added by the contract owner won't be able to submit pets</label>
-                    <br />
-                    <Form noValidate validated={this.state.validated} onSubmit={this.handleSubmit}
-                    >
-                        <Form.Group controlId="petName">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control required type="text" />
-                        </Form.Group>
+                    <Form validated={this.state.validated} onSubmit={this.handleSubmit}>
+                        <Form.Field label="Name" width={1}>
+                            <Form.Input width={1} name="petName" required="true" type="text" onChange={this.handleInputChange} />
+                        </Form.Field>
 
-                        <Form.Group controlId="petBio">
-                            <Form.Label>Bio</Form.Label>
-                            <Form.Control required as="textarea" rows="5" placeholder="Tell the world a little bit about this case..." />
-                        </Form.Group>
+                        <Form.Field label="Bio" width={1}>
+                            <Textarea width={1} name="petBio" required="true" rows={5} placeholder="Tell the world a little bit about this case..." onChange={this.handleInputChange} />
+                        </Form.Field>
 
-                        <Form.Group controlId="petNeeded">
-                            <Form.Label>Ether needed</Form.Label>
-                            <Form.Control required as="select">
-                                {etherOptions}
-                            </Form.Control>
-                        </Form.Group>
+                        <Form.Field label="Ether needed" width={1}>
+                            <Form.Input width={1} name="petNeeded" required="true" type="text" onChange={this.handleInputChange} />
+                        </Form.Field>
 
-                        <Form.Group controlId="petPhotos">
-                            <Form.Label>Pictures</Form.Label>
-                            <Form.Control onChange={this.handleFiles} required multiple type="file" accept="image/*" />
-                        </Form.Group>
-                        <Button variant="primary" type="Submit" disabled={loading}>
-                            {loading ? <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                            /> : null}
+                        <Form.Field label="Pictures" width={1}>
+                            <Input width={1} required="true" multiple="true" accept="image/*" type="file" onChange={this.handleFiles} />
+                        </Form.Field>
+
+                        <Button width={1} type="submit">
                             <span>{loading ? "Loading..." : "Submit"}</span>
                         </Button>
                     </Form>
-                </Col>
-                <br />
-                <Row>
-                    <Col>
-                        {alert}
-                    </Col>
-                </Row>
-            </Container>
+                </Box>
+                <Box>
+                    {alert}
+                </Box>
+            </Card>
         );
     }
 }
