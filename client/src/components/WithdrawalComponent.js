@@ -1,8 +1,7 @@
 import React from 'react';
 
 import AlertComponent from './AlertComponent';
-import { Container, Card, Button, CardColumns } from 'react-bootstrap';
-
+import { Card, Heading, Text, Button } from 'rimble-ui'
 
 class WithdrawalComponent extends React.Component {
 
@@ -22,8 +21,11 @@ class WithdrawalComponent extends React.Component {
 
     setup = async () => {
         const { web3, contract, account } = this.state;
-        const amount = await contract.methods.balances(account).call() || 0;
-        this.setState({ amount: web3.utils.fromWei(amount.toString(), "ether") });
+        if(contract)
+        {
+            const amount = await contract.methods.balances(account).call() || 0;
+            this.setState({ amount: web3.utils.fromWei(amount.toString(), "ether") });
+        }
     }
 
     handleWithdrawClick = async (event) => {
@@ -48,19 +50,15 @@ class WithdrawalComponent extends React.Component {
     render() {
         const { amount, alert, enabled } = this.state;
         return (
-            <Container>
-                <Card className="text-center">
-                    <Card.Header>Withdraw</Card.Header>
-                    <Card.Body>
-                        <Card.Text>
-                            {`You got ${amount} ETH available for withdraw`}
-                        </Card.Text>
-                        <Button variant="primary" onClick={this.handleWithdrawClick}>Withdraw</Button>
-                    </Card.Body>
-                </Card>
+            <Card>
+                <Heading.h2>Withdraw</Heading.h2>
+                <Text>
+                    {`You got ${amount} ETH available for withdraw`}
+                </Text>
+                <Button variant="primary" onClick={this.handleWithdrawClick}>Withdraw</Button>
                 <br />
                 {alert}
-            </Container>
+            </Card>
         )
     }
 }
