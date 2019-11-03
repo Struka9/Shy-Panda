@@ -51,11 +51,14 @@ class WithdrawalComponent extends React.Component {
         const { amount, alert, enabled } = this.state;
         return (
             <Card>
-                <Heading.h2>Withdraw</Heading.h2>
-                <Text>
-                    {`You got ${amount} ETH available for withdraw`}
-                </Text>
-                <Button variant="primary" onClick={this.handleWithdrawClick}>Withdraw</Button>
+                <Heading.h2>Withdraw donations?</Heading.h2>
+                {amount > 0 ? (
+                    <Button variant="primary" onClick={this.handleWithdrawClick}>Withdraw {amount} ETH</Button>
+                ) : (
+                    <Text>
+                        You currently have no ETH to withdraw.
+                    </Text>
+                )}
                 <br />
                 {alert}
             </Card>

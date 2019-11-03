@@ -84,7 +84,6 @@ class AddPetComponent extends React.Component {
     }
 
     handleSubmit = async (event) => {
-        console.log(23)
         this.setState({ loading: true });
         const form = event.currentTarget;
         event.preventDefault();
